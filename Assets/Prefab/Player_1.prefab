@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5343152488032964114}
   - component: {fileID: 1669319165421876511}
   - component: {fileID: 1480801373717345646}
-  - component: {fileID: 1480801373717345624}
+  - component: {fileID: -2946852077983210814}
   m_Layer: 0
   m_Name: Player_1
   m_TagString: Untagged
@@ -103,7 +103,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 0.49
+  m_Radius: 0.5
 --- !u!50 &1669319165421876511
 Rigidbody2D:
   serializedVersion: 4
@@ -142,9 +142,9 @@ MonoBehaviour:
   jump_delay: 0.15
   shot: {fileID: 7242630362301280923, guid: 22c0e14d9ed00c248a8c8d76541343fa, type: 3}
   aim: {fileID: 3394802004921722418, guid: fcd0f05b856f930419e96ac8e7a51ea9, type: 3}
-  spell: {fileID: 1480801373717345624}
   lives: 3
---- !u!114 &1480801373717345624
+  spell: {fileID: -2946852077983210814}
+--- !u!114 &-2946852077983210814
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -157,7 +157,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  damage: 10
+  damage: 5
   timer: 0
   cooldown: 0.5
   aliveTime: 10

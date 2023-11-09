@@ -2,30 +2,28 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 15f, JumpForce = 2f, jump_delay = 0.2f;
     [SerializeField] private GameObject shot, aim; //Referencias aos objetos do tiro e da mira
-    [SerializeField] private Spell spell; //Referencia ao script Spell
     [SerializeField] private int lives = 3;
+    [SerializeField] private Spell spell; //Referencia ao script Spell
     private GameObject arrow; //Objeto temporario para instanciar a mira
-    private bool isGrounded, isJumping = false, canJump = true, isShooting;
+    private bool isGrounded = true, isJumping = false, canJump = true, isShooting;
     private float health, jump_timer;
 
     private Rigidbody2D rigid;
-    private BaseController controller;
+    private BaseController controller; //Referencia ao script dos controles
     
  
     // Start is called before the first frame update
     void Start()
     {   
-        
-            rigid = GetComponent<Rigidbody2D>();
-        
+        //Pega automaticamente as referencias ao inicializar o jogo:
 
+        rigid = GetComponent<Rigidbody2D>();
         #region Pick_Player_Controller
             if(gameObject.name == "Player_1"){
                 controller = new C1_Controller();     
@@ -130,7 +128,7 @@ public class PlayerController : MonoBehaviour
     }
 
     void ResetPosition(){ //Reset player position
-        transform.position = new Vector3(0f, 0f, 0f);
+        transform.position = new Vector3(0f, 12f, 0f);
         rigid.velocity = new Vector2(0f, 0f);
     }
    
@@ -138,35 +136,38 @@ public class PlayerController : MonoBehaviour
     //Player Collision Events
 
     private void OnTriggerEnter2D(Collider2D other){
-        if(other.gameObject.tag == "Destroyer"){ //Verifica se o player saiu da regiao do mapa (Usei 4 trigger box nas 4 direcoes do mapa com a tag "Destroyer" -> as trigger box tem que ser bem grandes pq dependendo da velocidade que o player e arremessado, nao da tempo de verificar a colisao)
+        if(other.gameObject.CompareTag("Destroyer"))
+        { //Verifica se o player saiu da regiao do mapa (Usei 4 trigger box nas 4 direcoes do mapa com a tag "Destroyer" -> as trigger box tem que ser bem grandes pq dependendo da velocidade que o player e arremessado, nao da tempo de verificar a colisao)
             health = -1; //-1 porque a vida comeca em zero e vai aumentando (tipo smash bros)
         }
 
     }
     private void OnCollisionEnter2D(Collision2D other) {
         //Verifica se o player esta no chao (Obsoleta)
-        if(other.gameObject.layer == 3)
+        if(other.gameObject.layer == 3 || other.gameObject.CompareTag("Spell"))
             isGrounded = true; //Permite que o player pule apenas quando estiver no layer do ground
 
 
 
-        if(other.gameObject.tag == "Spell"){ //Colisao com os objetos da tag tiro
+        if(other.gameObject.CompareTag("Spell"))
+        { //Colisao com os objetos da tag tiro
 
             //Verifica se o tiro nao e o tiro do proprio jogador
             if(!other.gameObject.transform.IsChildOf(this.transform)){
                 //Usa as velocidades do tiro para aplicar o knockback
-                float velocityx = other.gameObject.GetComponent<Rigidbody2D>().velocity.x;
-                float velocityy = other.gameObject.GetComponent<Rigidbody2D>().velocity.y;
+                Rigidbody2D spell_rigid = other.gameObject.GetComponent<Rigidbody2D>();
 
-                Vector2 knockback = new Vector2(health + velocityx, health +  velocityy); //Adiciona knockback se baseando na vida do player
-                rigid.velocity = knockback;
+                Vector2 knockback = new Vector2(health + spell_rigid.velocity.x, health +  spell_rigid.velocity.y); //Adiciona knockback se baseando na vida do player
+
+                rigid.velocity = spell_rigid.velocity;
+
+                
                 Destroy(other.gameObject);
-                health += spell.damage;
+                health += UnityEngine.Random.Range(1f, spell.damage);
             }
         }
         
-    }
-    private void OnCollisionExit2D(Collision2D other) {
+    }private void OnCollisionExit2D(Collision2D other) {
         if(other.gameObject.layer == 3)
             isGrounded = false;
         

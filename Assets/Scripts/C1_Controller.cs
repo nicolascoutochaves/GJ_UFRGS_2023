@@ -16,18 +16,18 @@ public class C1_Controller : BaseController
 
     }
     public override bool JumpPress(){
-        return (Input.GetKeyDown(KeyCode.F));   
+        return (Input.GetKeyDown(KeyCode.H));   
     }
     public override bool JumpRealese(){
-        return (Input.GetKeyUp(KeyCode.F));   
+        return (Input.GetKeyUp(KeyCode.H));   
     }
 
     public override bool Aim(){
-        return (Input.GetKeyDown(KeyCode.G));
+        return (Input.GetKeyDown(KeyCode.J));
     }
 
     public override bool CastSpell(){
-        return (Input.GetKeyUp(KeyCode.G));
+        return (Input.GetKeyUp(KeyCode.J));
     }
 
   

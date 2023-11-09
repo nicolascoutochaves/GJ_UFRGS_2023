@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 9197722535485293423}
   - component: {fileID: 5898337203356734371}
   - component: {fileID: 5948787503427344434}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Shot
   m_TagString: Spell
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 2
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 803453bcea897a543a83eebe3d7479b9, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
