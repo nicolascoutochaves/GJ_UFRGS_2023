@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 5898337203356734371}
   - component: {fileID: 5948787503427344434}
   m_Layer: 0
-  m_Name: Spell
+  m_Name: Shot
   m_TagString: Spell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: d8dca9bb4f3b8584e8cadc139d471f5d, type: 3}
-  m_Color: {r: 0.8207547, g: 0.36465806, b: 0, a: 1}
+  m_Color: {r: 0.96897775, g: 1, b: 0.042452812, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
