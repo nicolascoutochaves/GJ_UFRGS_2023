@@ -1,0 +1,4 @@
+repository "GJ_UFRGS_2023@Dungeon_of_Devs@cloud"
+  path "/"
+    br "/main"
+    co "/main"
