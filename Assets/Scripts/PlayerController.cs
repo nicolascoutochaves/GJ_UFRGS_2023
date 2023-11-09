@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -7,7 +9,7 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 15f, JumpForce = 2f, jump_delay = 0.2f, handicap = 3f;
     [SerializeField] private GameObject shot, aim;
-    private Spell spell;
+    [SerializeField] private Spell spell;
     private GameObject arrow; //temporary object for aim
     private bool isGrounded, isJumping = false, canJump = true, isShooting;
     private float health, jump_timer = 0;
@@ -78,20 +80,27 @@ public class PlayerController : MonoBehaviour
                 canJump = false;
             }
           
-            
-            if(controller.Aim()){
-                arrow = Instantiate(aim, this.transform);
-                isShooting = true; 
-            }
-            if(isShooting){
-                Aim(controller.facingx, controller.facingy, arrow, gameObject.transform);
-            }
+            #region Shots
 
-            if(controller.CastSpell()){
-                isShooting = false;
-                Destroy(arrow);
-                Shot(controller.facingx, controller.facingy, gameObject.transform); 
-            }
+                if(controller.Aim()){
+                    arrow = Instantiate(aim, this.transform);
+                        isShooting = true; 
+                }
+                if(isShooting){
+                    Aim(controller.facingx, controller.facingy, arrow, gameObject.transform);
+                }
+
+                if(controller.CastSpell()){
+                    isShooting = false;
+                    Destroy(arrow);
+                    if(spell.timer <= 0){
+                        Shot(controller.facingx, controller.facingy, gameObject.transform); 
+                    }
+                }
+                if(spell.timer > 0){
+                    spell.timer -= Time.deltaTime;
+                }
+            #endregion
                   
             if(Input.GetKeyDown(KeyCode.R))
                 ResetPosition();
@@ -115,8 +124,8 @@ public class PlayerController : MonoBehaviour
         GameObject temp = Instantiate(shot, this.transform);
         temp.transform.position = player.position + new Vector3(dx, dy, 0);
         temp.GetComponent<Rigidbody2D>().AddForce(new Vector2(rigid.velocity.x + dx * speed, rigid.velocity.y + dy * speed), ForceMode2D.Impulse);
-        
-        Destroy(temp, 3);
+        spell.timer = spell.cooldown;
+        Destroy(temp, spell.aliveTime);
     }
 
     void ResetPosition(){ //Reset player position (just for tests)
