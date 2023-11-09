@@ -5,11 +5,12 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float speed = 15f, JumpForce = 2f, jump_delay = 0.2f;
-    [SerializeField] private GameObject spell, aim;
+    [SerializeField] private float speed = 15f, JumpForce = 2f, jump_delay = 0.2f, handicap = 3f;
+    [SerializeField] private GameObject shot, aim;
+    private Spell spell;
     private GameObject arrow; //temporary object for aim
     private bool isGrounded, isJumping = false, canJump = true, isShooting;
-    private float health = 100f, jump_timer = 0;
+    private float health, jump_timer = 0;
 
     private Rigidbody2D rigid;
     private BaseController controller;
@@ -79,7 +80,7 @@ public class PlayerController : MonoBehaviour
           
             
             if(controller.Aim()){
-                arrow = Instantiate(aim);
+                arrow = Instantiate(aim, this.transform);
                 isShooting = true; 
             }
             if(isShooting){
@@ -88,6 +89,7 @@ public class PlayerController : MonoBehaviour
 
             if(controller.CastSpell()){
                 isShooting = false;
+                Destroy(arrow);
                 Shot(controller.facingx, controller.facingy, gameObject.transform); 
             }
                   
@@ -96,9 +98,9 @@ public class PlayerController : MonoBehaviour
         #endregion
    
         #region LivesAndHealth
-            if(health <= 0){
+            if(health < 0){
                 ResetPosition();
-                health = 100;
+                health = 0;
             }
         #endregion
 
@@ -107,14 +109,10 @@ public class PlayerController : MonoBehaviour
     public void Aim(int dx, int dy, GameObject aim, Transform player){
         float angle = Mathf.Atan2(dy , (dx+0.001f)) * (180/Mathf.PI);
         aim.transform.position = player.position;
-        //aim.GetComponent<RectTransform>().pivot = new Vector2(0.5f, 0.51f);
-        //aim.GetComponent<RectTransform>().eulerAngles = new Vector3(aim.transform.eulerAngles.x, aim.transform.eulerAngles.y, angle-90);
         aim.transform.eulerAngles = new Vector3(aim.transform.eulerAngles.x, aim.transform.eulerAngles.y, angle-90);
-        Debug.Log(angle);
     }
     public void Shot(int dx, int dy, Transform player){
-        Destroy(arrow);
-        GameObject temp = Instantiate(spell);
+        GameObject temp = Instantiate(shot, this.transform);
         temp.transform.position = player.position + new Vector3(dx, dy, 0);
         temp.GetComponent<Rigidbody2D>().AddForce(new Vector2(rigid.velocity.x + dx * speed, rigid.velocity.y + dy * speed), ForceMode2D.Impulse);
         
@@ -131,14 +129,25 @@ public class PlayerController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other){
         if(other.gameObject.layer == 6){ //Verifica se o layer e do destroyer para matar o jogador
-            health = 0;
+            health = -1;
         }
 
     }
     private void OnCollisionEnter2D(Collision2D other) {
         if(other.gameObject.layer == 3)
             isGrounded = true; //Permite que o player pule apenas quando estiver no layer do ground
-        
+        if(other.gameObject.tag == "Spell"){
+
+            if(!other.gameObject.transform.IsChildOf(this.transform)){
+                float velocityx = other.gameObject.GetComponent<Rigidbody2D>().velocity.x; 
+                float velocityy = other.gameObject.GetComponent<Rigidbody2D>().velocity.y;
+
+                Vector2 knockback = new Vector2(health * velocityx, health * velocityy);
+                rigid.velocity = knockback;
+                Destroy(other.gameObject);
+                health += handicap;
+            }
+        }
         
     }
     private void OnCollisionExit2D(Collision2D other) {
