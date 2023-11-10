@@ -190,7 +190,7 @@ public class PlayerController : MonoBehaviour
 
 
                 Destroy(other.gameObject);
-                health += UnityEngine.Random.Range(spell.damage/2 , spell.damage);
+                health += UnityEngine.Random.Range(spell.damage/2 , spell.damage*2);
             }
         }
 
