@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Spell
   - Destroyer
+  - Ground
   layers:
   - Default
   - TransparentFX
