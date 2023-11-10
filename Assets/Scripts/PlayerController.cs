@@ -2,28 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using TMPro;
 using Unity.VisualScripting;
+using UnityEditor.Tilemaps;
 using UnityEngine;
-public static class Rigidbody2DExt {
-
-    public static void AddExplosionForce(this Rigidbody2D rb, float explosionForce, Vector2 explosionPosition, float explosionRadius, float upwardsModifier = 0.0F, ForceMode2D mode = ForceMode2D.Force) {
-        var explosionDir = rb.position - explosionPosition;
-        var explosionDistance = explosionDir.magnitude;
-
-        // Normalize without computing magnitude again
-        if (upwardsModifier == 0)
-            explosionDir /= explosionDistance;
-        else {
-            // From Rigidbody.AddExplosionForce doc:
-            // If you pass a non-zero value for the upwardsModifier parameter, the direction
-            // will be modified by subtracting that value from the Y component of the centre point.
-            explosionDir.y += upwardsModifier;
-            explosionDir.Normalize();
-        }
-
-        rb.AddForce(Mathf.Lerp(0, explosionForce, (1 - explosionDistance)) * explosionDir, mode);
-    }
-}
 
 public class PlayerController : MonoBehaviour
 {
@@ -32,15 +14,18 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int lives = 3;
     [SerializeField] private Spell spell; //Referencia ao script Spell
     private GameObject arrow; //Objeto temporario para instanciar a mira
-    private bool isGrounded = true;
+    //private bool isGrounded = true;
     private bool isJumping = false;
     private bool canJump = true;
     private bool isShooting;
-    private bool IsOnKnockback;
+    private bool isFacingRight = true;
+
     private float health, jump_timer;
 
     private Rigidbody2D rigid;
     private BaseController controller; //Referencia ao script dos controles
+    private Ground_detect ground;   
+
     
   
  
@@ -48,8 +33,8 @@ public class PlayerController : MonoBehaviour
     void Start()
     {   
         //Pega automaticamente as referencias ao inicializar o jogo:
-
         rigid = GetComponent<Rigidbody2D>();
+        ground = GetComponent<Ground_detect>();
         #region Pick_Player_Controller
             if(gameObject.name == "Player_1"){
                 controller = new C1_Controller();     
@@ -61,15 +46,17 @@ public class PlayerController : MonoBehaviour
         #endregion
 
 
-    }
+    }  
+   
    
     //Physics Update    
     private void FixedUpdate() {
 
         
         rigid.AddForce(new Vector2(controller.dx*speed*Time.deltaTime, 0f), ForceMode2D.Impulse);
-        
 
+        
+        
         
         if(isJumping){
                 jump_timer += Time.deltaTime;
@@ -88,7 +75,16 @@ public class PlayerController : MonoBehaviour
         controller.dy = 0;
     }
     
-  
+  // Flip sprite / animation over the x-axis
+     protected void Flip()    
+     {
+         isFacingRight = !isFacingRight;
+ 
+         Vector3 theScale = transform.localScale;
+         theScale.x *= -1;
+         transform.localScale = theScale;
+ 
+     }
 
     // Update is called once per frame
     void Update()
@@ -97,10 +93,10 @@ public class PlayerController : MonoBehaviour
         #region Controller_Realated
             controller.Move();
 
-            if(isGrounded){
+            if(ground.isGrounded){
                 canJump = true;
             }
-            if(controller.JumpPress() && isGrounded && canJump){
+            if(controller.JumpPress() && ground.isGrounded && canJump){
                 isJumping = true;
                 jump_timer = 0;
             } 
@@ -108,6 +104,11 @@ public class PlayerController : MonoBehaviour
             if(jump_timer > jump_delay || controller.JumpRealese()){
                 isJumping = false;
                 canJump = false;
+            }
+            if(controller.dx < 0 && isFacingRight){
+                Flip();
+            } else if(controller.dx > 0 && !isFacingRight){
+                Flip();
             }
           
             #region Shots
@@ -126,6 +127,8 @@ public class PlayerController : MonoBehaviour
                     Destroy(arrow);
                     if(spell.timer <= 0){
                         Shot(controller.facingx, controller.facingy, gameObject.transform); //Funcao que atira para posicao que o player estava olhando
+                        spell.timer = spell.cooldown;
+                    
                     }
                 }
                 if(spell.timer > 0){
@@ -151,10 +154,10 @@ public class PlayerController : MonoBehaviour
         aim.transform.eulerAngles = new Vector3(aim.transform.eulerAngles.x, aim.transform.eulerAngles.y, angle-90); //muda o angulo da mira
     }
     public void Shot(int dx, int dy, Transform player){
-        GameObject shot_temp = Instantiate(shot, this.transform); //Instancia o tiro como sendo uma child do player usando uma variavel temporaria
+        GameObject shot_temp = Instantiate(shot); //Instancia o tiro como sendo uma child do player usando uma variavel temporaria
+        shot_temp.name = gameObject.name + " shot";
         shot_temp.transform.position = player.position + new Vector3(dx, dy, 0);
         shot_temp.GetComponent<Rigidbody2D>().AddForce(new Vector2(rigid.velocity.x + dx * spell.speed, rigid.velocity.y + dy * spell.speed), ForceMode2D.Impulse); //Velocidade do disparo proporcional a do jogador
-        spell.timer = spell.cooldown;
         Destroy(shot_temp, spell.aliveTime);
     }
 
@@ -176,8 +179,7 @@ public class PlayerController : MonoBehaviour
         { //Colisao com os objetos da tag tiro
 
             //Verifica se o tiro nao e o tiro do proprio jogador
-            if(!other.gameObject.transform.IsChildOf(this.transform)){
-                IsOnKnockback = true;
+            if(gameObject.name + " shot" != other.gameObject.name ){
 
                 Vector3 direction = transform.position - other.gameObject.transform.position;
                 direction.Normalize();
@@ -198,15 +200,15 @@ public class PlayerController : MonoBehaviour
     }
 
     private void OnCollisionEnter2D(Collision2D other) {
-        //Verifica se o player esta no chao (Obsoleta)
-        if(other.gameObject.layer == 3 || other.gameObject.CompareTag("Spell"))
+        /* 
+        if(this.GetComponentInChildren<BoxCollider2D>().CompareTag("Ground"))
             isGrounded = true; //Permite que o player pule apenas quando estiver no layer do ground
-
+ */
     }
     private void OnCollisionExit2D(Collision2D other) {
-        //if(other.gameObject.layer == 3)
-            //isGrounded = false;
-        
+       /*  if(this.GetComponentInChildren<BoxCollider2D>().CompareTag("Ground"))
+            isGrounded = false;
+         */
     }
 
 }
