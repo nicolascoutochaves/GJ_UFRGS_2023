@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8009184461613805335}
   - component: {fileID: 5378087514776834992}
+  - component: {fileID: 2402622886991032938}
   - component: {fileID: 1669319165421876511}
   - component: {fileID: 1480801373717345646}
   - component: {fileID: -2946852077983210814}
-  - component: {fileID: 3028385343931958881}
   m_Layer: 0
   m_Name: Player_1
   m_TagString: Untagged
@@ -88,6 +88,32 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!61 &2402622886991032938
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4026666526876087096}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.67, y: -1.47}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 10, y: 10}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 2.11, y: 6.31}
+  m_EdgeRadius: 0.12
 --- !u!50 &1669319165421876511
 Rigidbody2D:
   serializedVersion: 4
@@ -101,13 +127,13 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_LinearDrag: 5
+  m_AngularDrag: 2
+  m_GravityScale: 8
   m_Material: {fileID: 6200000, guid: 803453bcea897a543a83eebe3d7479b9, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
   m_Constraints: 4
 --- !u!114 &1480801373717345646
 MonoBehaviour:
@@ -122,11 +148,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 12
-  JumpForce: 2
-  jump_delay: 0.15
+  JumpForce: 6
+  jump_delay: 0.2
   shot: {fileID: 7242630362301280923, guid: 22c0e14d9ed00c248a8c8d76541343fa, type: 3}
-  aim: {fileID: 3394802004921722418, guid: fcd0f05b856f930419e96ac8e7a51ea9, type: 3}
-  lives: 3
+  aim: {fileID: 2904345440593544985, guid: c61193f2166bc4d46a6e23a23c4f47ce, type: 3}
+  lives: 1
   spell: {fileID: -2946852077983210814}
 --- !u!114 &-2946852077983210814
 MonoBehaviour:
@@ -141,23 +167,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 10
-  damage: 5
-  timer: 0
+  damage: 10
+  timer: -0.023703944
   cooldown: 0.5
   aliveTime: 10
---- !u!70 &3028385343931958881
-CapsuleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4026666526876087096}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.53, y: -1.49}
-  m_Size: {x: 2.87, y: 7.07}
-  m_Direction: 0

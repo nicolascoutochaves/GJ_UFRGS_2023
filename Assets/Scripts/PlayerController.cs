@@ -4,6 +4,26 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity.VisualScripting;
 using UnityEngine;
+public static class Rigidbody2DExt {
+
+    public static void AddExplosionForce(this Rigidbody2D rb, float explosionForce, Vector2 explosionPosition, float explosionRadius, float upwardsModifier = 0.0F, ForceMode2D mode = ForceMode2D.Force) {
+        var explosionDir = rb.position - explosionPosition;
+        var explosionDistance = explosionDir.magnitude;
+
+        // Normalize without computing magnitude again
+        if (upwardsModifier == 0)
+            explosionDir /= explosionDistance;
+        else {
+            // From Rigidbody.AddExplosionForce doc:
+            // If you pass a non-zero value for the upwardsModifier parameter, the direction
+            // will be modified by subtracting that value from the Y component of the centre point.
+            explosionDir.y += upwardsModifier;
+            explosionDir.Normalize();
+        }
+
+        rb.AddForce(Mathf.Lerp(0, explosionForce, (1 - explosionDistance)) * explosionDir, mode);
+    }
+}
 
 public class PlayerController : MonoBehaviour
 {
@@ -12,12 +32,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int lives = 3;
     [SerializeField] private Spell spell; //Referencia ao script Spell
     private GameObject arrow; //Objeto temporario para instanciar a mira
-    private bool isGrounded = true, isJumping = false, canJump = true, isShooting;
+    private bool isGrounded = true;
+    private bool isJumping = false;
+    private bool canJump = true;
+    private bool isShooting;
+    private bool IsOnKnockback;
     private float health, jump_timer;
 
     private Rigidbody2D rigid;
     private BaseController controller; //Referencia ao script dos controles
     
+  
  
     // Start is called before the first frame update
     void Start()
@@ -37,12 +62,15 @@ public class PlayerController : MonoBehaviour
 
 
     }
-
-    //Physics Update
+   
+    //Physics Update    
     private void FixedUpdate() {
-      
-        rigid.velocity = new Vector2(speed * controller.dx , rigid.velocity.y); //Atualiza a velocidade do jogador com a direcao recebida do controle
 
+        
+        rigid.AddForce(new Vector2(controller.dx*speed*Time.deltaTime, 0f), ForceMode2D.Impulse);
+        
+
+        
         if(isJumping){
                 jump_timer += Time.deltaTime;
                 rigid.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
@@ -65,13 +93,6 @@ public class PlayerController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.Y)){
-
-                    Vector2 direction = new(1,1);
-                    //transform.position += (Vector3) direction;
-                    
-                    rigid.AddForce(direction, ForceMode2D.Impulse);
-        }
 
         #region Controller_Realated
             controller.Move();
@@ -156,19 +177,14 @@ public class PlayerController : MonoBehaviour
 
             //Verifica se o tiro nao e o tiro do proprio jogador
             if(!other.gameObject.transform.IsChildOf(this.transform)){
-                
-                //Usa as velocidades do tiro para aplicar o knockback
-                //Rigidbody2D spell_rigid = other.gameObject.GetComponent<Rigidbody2D>();
-                //Vector2 knockback = new Vector2(health + spell_rigid.velocity.x, health +  spell_rigid.velocity.y); //Adiciona knockback se baseando na vida do player
-                
+                IsOnKnockback = true;
 
-                //rigid.AddForce(direction*1000 , ForceMode2D.Impulse);
-                //rigid.AddForce(direction*spell_rigid.velocity*health , ForceMode2D.Impulse);
                 Vector3 direction = transform.position - other.gameObject.transform.position;
                 direction.Normalize();
-                rigid.AddForce(new Vector2(health * spell.damage * direction.x, 0), ForceMode2D.Impulse);
-                transform.position += (Vector3) direction * health * spell.damage;
+                Vector2 knockback = (Vector2)((health + spell.damage) * direction);
+                rigid.AddForce(knockback, ForceMode2D.Impulse);
 
+                //rigid.AddExplosionForce(100, this.transform.position,10);
                 Debug.Log(health);
                 Debug.Log(rigid.velocity.x + " " + rigid.velocity.y);
 
