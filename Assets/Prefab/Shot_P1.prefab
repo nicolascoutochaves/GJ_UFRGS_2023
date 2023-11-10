@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 7589023115172551988}
   - component: {fileID: 5948787503427344434}
   m_Layer: 3
-  m_Name: Shot
+  m_Name: Shot_P1
   m_TagString: Spell
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 7242630362301280923}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 13.474678, y: -3.2449608, z: 1.2957693}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2.538, y: 2.538, z: 2.538}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -75,9 +75,9 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: d8dca9bb4f3b8584e8cadc139d471f5d, type: 3}
-  m_Color: {r: 0.96897775, g: 1, b: 0.042452812, a: 1}
+  m_SortingOrder: 1
+  m_Sprite: {fileID: 21300000, guid: 8c8b7abf9f9990d43a9cc61384b9842a, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -134,7 +134,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 803453bcea897a543a83eebe3d7479b9, type: 2}
   m_Interpolate: 0
   m_SleepingMode: 1
