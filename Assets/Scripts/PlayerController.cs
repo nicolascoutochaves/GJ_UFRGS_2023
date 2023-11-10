@@ -48,9 +48,7 @@ public class PlayerController : MonoBehaviour
                 rigid.AddForce(new Vector2(0f, JumpForce), ForceMode2D.Impulse);
         }
         
-        /* if (Physics2D.Raycast(transform.position + (Vector3.up * 0.1f), Vector3.down, out hitInfo, m_GroundCheckDistance))
-            {isGrounded = true;
-            } */
+
         //Store last player facing direction 
         if(controller.dx != 0 || controller.dy != 0){
             controller.facingx = controller.dx;
