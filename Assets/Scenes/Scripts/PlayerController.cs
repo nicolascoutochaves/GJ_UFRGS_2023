@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -58,10 +59,19 @@ public class PlayerController : MonoBehaviour
         controller.dx = 0;
         controller.dy = 0;
     }
+    
+  
 
     // Update is called once per frame
     void Update()
     {
+        if(Input.GetKey(KeyCode.Y)){
+
+                    Vector2 direction = new(1,1);
+                    //transform.position += (Vector3) direction;
+                    
+                    rigid.AddForce(direction, ForceMode2D.Impulse);
+        }
 
         #region Controller_Realated
             controller.Move();
@@ -135,41 +145,51 @@ public class PlayerController : MonoBehaviour
 
     //Player Collision Events
 
-    private void OnTriggerEnter2D(Collider2D other){
+      private void OnTriggerEnter2D(Collider2D other){
         if(other.gameObject.CompareTag("Destroyer"))
         { //Verifica se o player saiu da regiao do mapa (Usei 4 trigger box nas 4 direcoes do mapa com a tag "Destroyer" -> as trigger box tem que ser bem grandes pq dependendo da velocidade que o player e arremessado, nao da tempo de verificar a colisao)
             health = -1; //-1 porque a vida comeca em zero e vai aumentando (tipo smash bros)
         }
 
+         if(other.gameObject.CompareTag("Spell"))
+        { //Colisao com os objetos da tag tiro
+
+            //Verifica se o tiro nao e o tiro do proprio jogador
+            if(!other.gameObject.transform.IsChildOf(this.transform)){
+                
+                //Usa as velocidades do tiro para aplicar o knockback
+                //Rigidbody2D spell_rigid = other.gameObject.GetComponent<Rigidbody2D>();
+                //Vector2 knockback = new Vector2(health + spell_rigid.velocity.x, health +  spell_rigid.velocity.y); //Adiciona knockback se baseando na vida do player
+                
+
+                //rigid.AddForce(direction*1000 , ForceMode2D.Impulse);
+                //rigid.AddForce(direction*spell_rigid.velocity*health , ForceMode2D.Impulse);
+                Vector3 direction = transform.position - other.gameObject.transform.position;
+                direction.Normalize();
+                rigid.AddForce(new Vector2(health * spell.damage * direction.x, 0), ForceMode2D.Impulse);
+                transform.position += (Vector3) direction * health * spell.damage;
+
+                Debug.Log(health);
+                Debug.Log(rigid.velocity.x + " " + rigid.velocity.y);
+
+
+                Destroy(other.gameObject);
+                health += UnityEngine.Random.Range(spell.damage/2 , spell.damage);
+            }
+        }
+
+
     }
+
     private void OnCollisionEnter2D(Collision2D other) {
         //Verifica se o player esta no chao (Obsoleta)
         if(other.gameObject.layer == 3 || other.gameObject.CompareTag("Spell"))
             isGrounded = true; //Permite que o player pule apenas quando estiver no layer do ground
 
-
-
-        if(other.gameObject.CompareTag("Spell"))
-        { //Colisao com os objetos da tag tiro
-
-            //Verifica se o tiro nao e o tiro do proprio jogador
-            if(!other.gameObject.transform.IsChildOf(this.transform)){
-                //Usa as velocidades do tiro para aplicar o knockback
-                Rigidbody2D spell_rigid = other.gameObject.GetComponent<Rigidbody2D>();
-
-                Vector2 knockback = new Vector2(health + spell_rigid.velocity.x, health +  spell_rigid.velocity.y); //Adiciona knockback se baseando na vida do player
-
-                rigid.velocity = spell_rigid.velocity;
-
-                
-                Destroy(other.gameObject);
-                health += UnityEngine.Random.Range(1f, spell.damage);
-            }
-        }
-        
-    }private void OnCollisionExit2D(Collision2D other) {
-        if(other.gameObject.layer == 3)
-            isGrounded = false;
+    }
+    private void OnCollisionExit2D(Collision2D other) {
+        //if(other.gameObject.layer == 3)
+            //isGrounded = false;
         
     }
 
